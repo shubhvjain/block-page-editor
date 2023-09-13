@@ -78,6 +78,11 @@ export class AppComponent {
   }
   selectedTheme: any = "dark"
   ngOnInit() {
+    // @ts-ignore
+    window["Split"](['#split-0', '#split-1'],{
+      sizes:[70,30],
+      minSize: 100,
+    })
     this.selectedTheme = "dark"
     const options = {
       autoResize: true,

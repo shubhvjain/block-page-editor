@@ -17,3 +17,22 @@
 .toolbar{
   border-bottom: 1px solid lightgray ;
 }
+
+.split {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+}
+
+.gutter {
+  background-color: #eee;
+  background-repeat: no-repeat;
+  background-position: 50%;
+  padding:2px;
+  margin: 2px;
+}
+
+.gutter-horizontal {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAeCAYAAADkftS9AAAAIklEQVQoU2M4c+bMfxAGAgYYmwGrIIiDjrELjpo5aiZeMwF+yNnOs5KSvgAAAABJRU5ErkJggg==');
+  cursor: col-resize;
+}
