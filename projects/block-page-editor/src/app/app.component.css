@@ -1,0 +1,19 @@
+#mynetwork {
+  width: 100%;
+  height: 100vh;
+  border-right: 1px solid lightgray;
+  background-color: #333333;
+  margin: 0px;
+  /* background-color: #222831; */
+}
+
+.fullscreen{
+  background-color: #333333;
+  margin: 0;
+  height: 100vh;
+  color:#eeeeee
+}
+
+.toolbar{
+  border-bottom: 1px solid lightgray ;
+}
