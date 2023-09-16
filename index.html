@@ -24,7 +24,8 @@
               <div id="edit-form" v-show="isEditing">
                 <h4>Editing <code >{{blockData.id}}</code> <button type="button"  @click="saveChanges" class="btn btn-link">Save</button></h4>              
                 <div class="mb-3">
-                  <input type="text" v-model="blockData.title" class="form-control" id="selectedTitle" placeholder="Title" @blur="saveChanges">
+                  <input type="text" v-model="blockData.title" class="form-control" id="selectedTitle" placeholder="Title" >
+                  <!-- @blur="saveChanges" -->
                 </div>
                 <div class="mb-3">
                   <textarea class="form-control" v-model="blockData.text" id="selectedText" rows="10"></textarea>
