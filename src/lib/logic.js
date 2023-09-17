@@ -1,8 +1,4 @@
-Split(["#graph", "#block"], {
-  sizes: [70, 30],
-  minSize: [300, 100],
-  expandToMin: true,
-});
+
 
 window.MathJax.Hub.Config({
   showMathMenu: false,
@@ -24,20 +20,27 @@ Doc = {};
 Graph = {};
 Network = {}
 VueApp = {}
+DocPath=""
 
 const resetDoc = () => {
   Doc = {};
   Graph = {};
   Network = {};
   VueApp = {}
+  DocPath=""
 };
 
 const initVue = () => {};
 
 const initGraph = () => {
   let nodes = [];
-
-  bfs = blockPage.graph.BreadthFirstSearch(Doc.graphs.knowledge,"main")
+  let bfs = null
+  try {
+    bfs = blockPage.graph.BreadthFirstSearch(Doc.graphs.knowledge,"main")
+  } catch (error) {
+    bfs = {vertices:{}}
+  }
+  
   Doc.blocks.map(block=>{
     theLevel = 2 // default level is 2
     if (block=="main") theLevel = 1
@@ -72,6 +75,7 @@ const initGraph = () => {
       callback(newNode);
     },
     deleteNode : function(nodeData,callback) {
+      VueApp.closeIfOpen(nodeData.nodes[0])
       deleteBlock(nodeData.nodes[0])
       callback(nodeData);
     },
@@ -92,6 +96,12 @@ const initGraph = () => {
       callback(edge)
     }
   }
+  Split(["#graph", "#block"], {
+    sizes: [70, 30],
+    minSize: [300, 100],
+    expandToMin: true,
+  });
+  
   Network = new vis.Network(container, Graph,options );
 
   Network.on("click", function (params) {
@@ -123,6 +133,18 @@ const initGraph = () => {
         status:0
     },
     methods: {
+        closeIfOpen(blockId){
+          if(this.status !=0){
+            if(this.blockData.id==blockId){
+              this.blockSelected = false
+              this.status=0  
+              this.blockData = {}
+            }
+            //this.savePreviewBeforeLeaving()
+            //this.blockSelected = false
+            //this.status=0
+          }
+        },
         closeEditor(){
           if(this.status !=0){
             this.savePreviewBeforeLeaving()
@@ -223,7 +245,12 @@ const updateBlock = (blockId,changes)=>{
 const refreshNetworkEdges = ()=>{
   let nodes = [];
   console.log(Doc)
-  bfs = blockPage.graph.BreadthFirstSearch(Doc.graphs.knowledge,"main")
+  let bfs = null
+  try {
+    bfs = blockPage.graph.BreadthFirstSearch(Doc.graphs.knowledge,"main")    
+  } catch (error) {
+    bfs = {vertices:{}}  
+  }
   //console.log(bfs)
   Doc.blocks.map(block=>{
     theLevel = 2 // default level is 2
@@ -249,11 +276,13 @@ const refreshNetworkEdges = ()=>{
 }
 
 const loadDocument = (text) => {
+  console.log(text)
   resetDoc();
   initVue();
-  Doc = blockPage.encode(text);
+  Doc = blockPage.encode(text.fileData);
+  console.log(Doc)
+  DocPath = text.filePath
   initGraph();
-  // console.log(Doc);
 };
 
 
@@ -276,5 +305,5 @@ sampleText = `.[main] The central idea
 .[two one]
 Sample 
 `;
-loadDocument(sampleText);
+// loadDocument(sampleText);
 
