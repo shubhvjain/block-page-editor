@@ -50,12 +50,3 @@ async function saveDataToFile() {
   UnsavedChanges= false
   // Replace this with your actual save data code
 }
-
-// window.addEventListener("beforeunload", function (e) {
-//   if (UnsavedChanges) {
-//     // Display a confirmation box with a custom message.
-//     const confirmationMessage = "You have unsaved changes. Do you really want to leave?";
-//     // (e || window.event).returnValue = confirmationMessage;
-//     return confirmationMessage;
-//   }
-// });

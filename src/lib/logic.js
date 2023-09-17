@@ -20,9 +20,18 @@ const initVue = () => {
         isEditing: false,
         blockSelected:false,
         blockData : {id:"",title:"",text:""},
-        status:0
+        status:0,
+        fontSize:18
     },
     methods: {
+        increaseFontSize() {
+          this.fontSize += 2; // Increase font size by 2 pixels
+        },
+        decreaseFontSize() {
+            if (this.fontSize > 12) { // Ensure a minimum font size
+                this.fontSize -= 2; // Decrease font size by 2 pixels
+            }
+        },
         closeIfOpen(blockId){
           // use this if you are deleteting a node from the graph and if its also open in the editor. no need to save things 
           if(this.status !=0){
@@ -201,9 +210,10 @@ const deleteBlock = (blockId)=>{
   // refreshNetworkEdges()
 }
 
-const addEdge = (from,to,label="Part")=>{
+const addEdge = (from,to,label="part")=>{
   newAppendBlock = `+[${from}]\n~[${label},${to}]`
   Doc = blockPage.action.doAddNewBlock(Doc,newAppendBlock)
+  console.log(Doc)
   //console.log(Doc)
   UnsavedChanges = true
   refreshNetworkEdges()
@@ -262,6 +272,10 @@ const loadDocument = (text) => {
   initVue();
   Doc = blockPage.encode(text.fileData);
   console.log(Doc)
+  if(!Doc.data['main']){
+    mainBlock =`.[main] Central Idea\n`
+    Doc = blockPage.action.doAddNewBlock(Doc,mainBlock)
+  }
   DocPath = text.filePath
   initGraph();
 };

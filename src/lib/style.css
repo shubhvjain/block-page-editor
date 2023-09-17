@@ -25,6 +25,10 @@ body{
   font-size: 20px;
 }
 
+#block{
+  height: 100vh;
+  overflow-y: auto;
+}
 
 
 .vis-label{

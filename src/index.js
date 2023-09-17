@@ -17,8 +17,6 @@ const editorStore = new Store();
 const openEditor = (editorId,filePath)=>{
   // new record for the file path
   fileKeyName =  filePath //genFilePathHash(filePath)
-  console.log(fileKeyName)
-  console.log(editorStore.has(fileKeyName))
   if(editorStore.has(fileKeyName)){
     console.log(`Already open file:${filePath} in editor:${editorStore.get(fileKeyName)}`)
     return {success:false, message:"File already open", editorId:editorStore.get(fileKeyName)}
@@ -110,8 +108,39 @@ const createWindow = () => {
     closeEditor(editorId)
     // console.log(e);
   });
+  // Create a menu item to open a new window
+    const { Menu, MenuItem } = require("electron");
+    const menu = Menu.buildFromTemplate([
+      {
+        label: "File",
+        submenu: [
+          {
+            label: "New Editor",
+            click: createWindow,
+          },
+          {
+            label: "Dev tool",
+            click: ()=>{mainWindow.webContents.openDevTools()},
+          },
+          // Add other menu items here
+          // BrowserWindow.webContents.openDevTools()
+        ],
+      },
+       {
+        label: "Edit",
+        submenu: [
+            { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+            { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+            { type: "separator" },
+            { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+            { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+            { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+            { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
+        ]}
+    ]);
+    Menu.setApplicationMenu(menu);
   // Open the DevTools.
-  // mainWindow.webContents.openDevTools();
+  //  mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
@@ -126,22 +155,6 @@ app.whenReady().then(() => {
   globalShortcut.register("CommandOrControl+N", () => {
     createWindow();
   });
-  // Create a menu item to open a new window
-  const { Menu, MenuItem } = require("electron");
-  const menu = Menu.buildFromTemplate([
-    {
-      label: "File",
-      submenu: [
-        {
-          label: "New Editor",
-          click: createWindow,
-        },
-        // Add other menu items here
-      ],
-    },
-  ]);
-
-  Menu.setApplicationMenu(menu);
 });
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
@@ -158,6 +171,7 @@ app.on("activate", () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
+    editorStore.clear();
     createWindow();
   }
 });

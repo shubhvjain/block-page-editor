@@ -15,7 +15,7 @@
           <div id="graph">
             <div id="mynetwork"></div>
           </div>
-          <div id="block">
+          <div id="block" :style="{ fontSize: fontSize + 'px' }" >
             <div id="preview" class="p-1 m-1" v-show="blockSelected" >
               <div v-show="!isEditing" >
                 <h2 class="border-bottom">{{ blockData.title }} <button class="btn btn-link" id="edit-button" @click="editPreview">Edit</button>  </h2>
@@ -33,21 +33,27 @@
                 </div>      
               </div>
           </div>
-          <div class="row" v-show="!blockSelected">
-            <div class="col-md-6 mx-auto mt-3 pt-4 d-flex justify-content-center align-items-center">
-                <p class="text-center">Select a block to preview/edit</p>
-            </div>
-        </div>
+          <div v-show="!blockSelected">
+            <div class="row" >
+              <div class="col-md-6 mx-auto mt-3 pt-4">
+                  <p class="text-center">Select a block to preview/edit</p>
+                  <div class="text-center">
+                    <div class="btn-group" role="group" aria-label="Basic outlined example">
+                      <button type="button" @click="increaseFontSize" id="increaseFontSize" class="btn btn-sm btn-outline-primary">+ A</button>
+                      <button type="button" @click="decreaseFontSize" id="decreaseFontSize" class="btn btn-sm btn-outline-primary">- A</button>
+                    </div>
+                  </div>
+              </div>
+          </div>
+          </div>
+          
           </div>
         </div>
       </div>
       <div class="row" id="startup">
-        <div class="col-4 mx-auto">
+        <div class="col-md-4 mx-auto text-center">
           <br><br><br>
           <button type="button" class="btn btn-success btn-lg" id="pickFileBtn">Open a File</button>
-
-      
-          
         </div>
       </div>
     </div>
@@ -56,13 +62,13 @@
     <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <!-- <script src="./lib/custom-mathjax.min.js" id="MathJax-script" async></script> -->
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>    <script src="https://unpkg.com/block-page/bundle.js"></script>
-    <script src="./lib/network.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML"></script>    
+    <script src="https://unpkg.com/block-page/bundle.js"></script>
+    <!-- <script src="./lib/network.js"></script> -->
     <script src="./lib/constants.js"></script>
     <script src="./lib/logic.js"></script>
     <script src="./renderer.js"></script>
 
-        <!-- You can also require other files to run in this process -->
     
   </body>
 </html>
