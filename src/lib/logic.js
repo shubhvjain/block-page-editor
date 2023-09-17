@@ -1,26 +1,9 @@
-
-
-window.MathJax.Hub.Config({
-  showMathMenu: false,
-  tex2jax: { inlineMath: [["$", "$"]],displayMath:[["$$", "$$"]] },
-  menuSettings: { zoom: "Double-Click", zscale: "150%" },
-  CommonHTML: { linebreaks: { automatic: true } },
-  "HTML-CSS": { linebreaks: { automatic: true } },
-  SVG: { linebreaks: { automatic: true } }
-})
-
-const renderMaths = ()=>{
-  setTimeout(() => {
-   //   window.MathJax.Queue(["Typeset", window.MathJax.Hub], 'editor');
-  },1000)
-}
-
-
 Doc = {};
 Graph = {};
 Network = {}
 VueApp = {}
 DocPath=""
+UnsavedChanges = false;
 
 const resetDoc = () => {
   Doc = {};
@@ -30,7 +13,84 @@ const resetDoc = () => {
   DocPath=""
 };
 
-const initVue = () => {};
+const initVue = () => {
+  VueApp = new Vue({
+    el: "#block",
+    data: {
+        isEditing: false,
+        blockSelected:false,
+        blockData : {id:"",title:"",text:""},
+        status:0
+    },
+    methods: {
+        closeIfOpen(blockId){
+          // use this if you are deleteting a node from the graph and if its also open in the editor. no need to save things 
+          if(this.status !=0){
+            if(this.blockData.id==blockId){
+              this.blockSelected = false
+              this.status=0  
+              this.blockData = {}
+            }
+          }
+        },
+        closeEditor(){
+          if(this.status != 0){
+            this.savePreviewBeforeLeaving()
+            this.blockSelected = false
+            this.status=0
+          }
+        },
+        savePreviewBeforeLeaving(){
+          if(this.status==0){
+            // the editor what just initialized 
+            this.status = 1
+          }else{
+            this.saveChanges()
+          }
+          this.blockData = {}
+        },
+        loadPreview(blockId,edit=false) {
+            this.savePreviewBeforeLeaving()
+            let bData = { ... Doc.data[blockId] }
+            this.blockData = {id:blockId, preview:bData.text, title:bData.title,text:bData.source.first } ;
+            //console.log(this.blockData)
+            this.blockSelected = true
+            if(edit){
+              this.editPreview()
+            }    
+            renderMaths()
+        },
+        editPreview() {
+            this.isEditing = true;
+        },
+        saveChanges() {
+          // check if something changes. if yes save otherwise ignore
+          let blockContent = Doc.data[this.blockData.id]
+          contentChanged  = false
+          if(blockContent.title != this.blockData.title){
+            contentChanged = true
+          }
+          if(blockContent.source.first != this.blockData.text){
+            contentChanged = true
+          }
+          if(contentChanged){
+            //console.log("changes have to be saved first")
+            blockContent = updateBlock(this.blockData.id,{title:this.blockData.title,text:this.blockData.text})
+          } 
+          this.blockData.preview = blockContent.text
+          this.isEditing = false;
+          renderMaths()
+        },
+        formatHtml(content) {
+          // Replace newline characters with <br> tags
+          if(content){
+            return content.replace(/\n/g, '<br>');
+          }
+          else{return ""}
+        }
+    }
+  });
+};
 
 const initGraph = () => {
   let nodes = [];
@@ -101,7 +161,7 @@ const initGraph = () => {
     minSize: [300, 100],
     expandToMin: true,
   });
-  
+
   Network = new vis.Network(container, Graph,options );
 
   Network.on("click", function (params) {
@@ -119,90 +179,6 @@ const initGraph = () => {
       VueApp.loadPreview(blockId,true)
     }
   });
-
-  VueApp = new Vue({
-    el: "#block",
-    data: {
-        isEditing: false,
-        blockSelected:false,
-        blockData : {
-          id:"",
-          title:"",
-          text:""
-        },
-        status:0
-    },
-    methods: {
-        closeIfOpen(blockId){
-          if(this.status !=0){
-            if(this.blockData.id==blockId){
-              this.blockSelected = false
-              this.status=0  
-              this.blockData = {}
-            }
-            //this.savePreviewBeforeLeaving()
-            //this.blockSelected = false
-            //this.status=0
-          }
-        },
-        closeEditor(){
-          if(this.status !=0){
-            this.savePreviewBeforeLeaving()
-            this.blockSelected = false
-            this.status=0
-          }
-        },
-        savePreviewBeforeLeaving(){
-          if(this.status==0){
-            // the editor what just initialized 
-            this.status = 1
-          }else{
-            this.saveChanges()
-          }
-          this.blockData = {}
-        },
-        loadPreview(blockId,edit=false) {
-            this.savePreviewBeforeLeaving()
-            let bData = { ... Doc.data[blockId] }
-            this.blockData = {id:blockId, preview:bData.text, title:bData.title,text:bData.source.first } ;
-            //console.log(this.blockData)
-            this.blockSelected = true
-            if(edit){
-              this.editPreview()
-            }    
-            renderMaths()
-        },
-        editPreview() {
-            this.isEditing = true;
-        },
-        saveChanges() {
-          // check if something changes. if yes save otherwise ignore
-          let blockContent = Doc.data[this.blockData.id]
-          contentChanged  = false
-          if(blockContent.title != this.blockData.title){
-            contentChanged = true
-          }
-          if(blockContent.source.first != this.blockData.text){
-            contentChanged = true
-          }
-          if(contentChanged){
-            //console.log("changes have to be saved first")
-            blockContent = updateBlock(this.blockData.id,{title:this.blockData.title,text:this.blockData.text})
-          } 
-          this.blockData.preview = blockContent.text
-          this.isEditing = false;
-  
-        },
-        formatHtml(content) {
-          // Replace newline characters with <br> tags
-          if(content){
-            return content.replace(/\n/g, '<br>');
-          }
-          else{return ""}
-        }
-    }
-  });
-
 };
 
 
@@ -213,6 +189,7 @@ const addNewBlock=()=>{
   Doc = blockPage.action.doAddNewBlock(Doc,newBlock)
   //console.log(Doc)
   refreshNetworkEdges()
+  UnsavedChanges = true
   return {id:newId,label:newTitle,level:2,group:"first"}
   
 }
@@ -220,25 +197,29 @@ const addNewBlock=()=>{
 const deleteBlock = (blockId)=>{
   Doc = blockPage.action.doDeleteBlock(Doc,blockId)
   //console.log(Doc)
-  refreshNetworkEdges()
+  UnsavedChanges = true
+  // refreshNetworkEdges()
 }
 
 const addEdge = (from,to,label="Part")=>{
   newAppendBlock = `+[${from}]\n~[${label},${to}]`
   Doc = blockPage.action.doAddNewBlock(Doc,newAppendBlock)
   //console.log(Doc)
+  UnsavedChanges = true
   refreshNetworkEdges()
 }
 
 const deleteEdge = (from ,to) => {
   Doc = blockPage.action.doDeleteKGEdge(Doc,from,to)
   //console.log(Doc)
+  UnsavedChanges = true
   refreshNetworkEdges()
 }
 
 const updateBlock = (blockId,changes)=>{
   Doc = blockPage.action.doEditBlock(Doc,blockId+"",changes)
   refreshNetworkEdges()
+  UnsavedChanges = true
   return Doc.data[blockId]
 }
 
@@ -284,26 +265,3 @@ const loadDocument = (text) => {
   DocPath = text.filePath
   initGraph();
 };
-
-
-
-sampleText = `.[main] The central idea
-~[part,one]
-~[part,two]
-
-.[one] One
-~[part,one-one]
-
-.[one-one] One one 
-~[part,one one one]
-
-.[one one one] One one one 
-
-.[two] Two 
-~[part,two one]
-
-.[two one]
-Sample 
-`;
-// loadDocument(sampleText);
-

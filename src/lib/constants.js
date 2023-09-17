@@ -153,3 +153,19 @@ getGraphOptions = ()=>{
   }
   return options
 }
+
+window.MathJax.Hub.Config({
+  showMathMenu: false,
+  tex2jax: { inlineMath: [["$", "$"]],displayMath:[["$$", "$$"]] },
+  menuSettings: { zoom: "Double-Click", zscale: "150%" },
+  CommonHTML: { linebreaks: { automatic: true } },
+  "HTML-CSS": { linebreaks: { automatic: true } },
+  SVG: { linebreaks: { automatic: true } }
+})
+
+const renderMaths = ()=>{
+  setTimeout(() => {
+    window.MathJax['Hub'].Queue(["Typeset", window.MathJax.Hub], 'editor');
+   //   window.MathJax.Queue(["Typeset", window.MathJax.Hub], 'editor');
+  },1000)
+}
