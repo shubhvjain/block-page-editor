@@ -131,28 +131,3 @@ const renderMaths = ()=>{
   },1000)
 };
 
-document.addEventListener('DOMContentLoaded', function () {
-  console.log("lllll")
-  const content = document.getElementById('block');
-  const increaseButton = document.getElementById('increaseFontSize');
-  const decreaseButton = document.getElementById('decreaseFontSize');
-
-  let currentFontSize = 16; // Initial font size
-
-  // Function to increase font size
-  increaseButton.addEventListener('click', function () {
-    console.log("clokkkk")
-      currentFontSize += 2; // Increase font size by 2px
-      content.style.fontSize = currentFontSize + 'px';
-  });
-
-  // Function to decrease font size
-  decreaseButton.addEventListener('click', function () {
-    console.log("clokkkk")
-
-      if (currentFontSize > 12) { // Ensure a minimum font size
-          currentFontSize -= 2; // Decrease font size by 2px
-          content.style.fontSize = currentFontSize + 'px';
-      }
-  });
-});
