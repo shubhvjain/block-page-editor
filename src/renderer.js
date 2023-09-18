@@ -27,6 +27,7 @@ btn.addEventListener("click", async () => {
   if (fileData1.success) {
     showDiv("editor");
     hideDiv("startup");
+    await window.electronAPI.setTitle(fileData1.filePath)
     loadDocument(fileData1);
   } else {
     console.log(fileData1.message);

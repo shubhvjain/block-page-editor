@@ -106,13 +106,13 @@ const initGraph = () => {
   let bfs = null
   try {
     bfs = blockPage.graph.BreadthFirstSearch(Doc.graphs.knowledge,"main")
+    // console.log(bfs)
   } catch (error) {
     bfs = {vertices:{}}
   }
   
   Doc.blocks.map(block=>{
     theLevel = 2 // default level is 2
-    if (block=="main") theLevel = 1
     if (bfs.vertices[block]){
       theLevel  = bfs.vertices[block]["weight"] + 1
     }
@@ -158,11 +158,16 @@ const initGraph = () => {
       }
     },
     deleteEdge: function(edge,callback){
-      console.log(edge)
-      edgeData = Graph.edges.get(edge["edges"][0])
-      deleteEdge(edgeData.from,edgeData.to)
-      console.log(edgeData)
-      callback(edge)
+      try {
+        edgeData = Graph.edges.get(edge["edges"][0])
+        deleteEdge(edgeData.from,edgeData.to)
+        callback(edge)
+      } catch (error) {
+        console.log(error)
+      }
+    },
+    editEdge : function(edge,callback){
+      console.log("This option will not work.")
     }
   }
   Split(["#graph", "#block"], {
@@ -192,15 +197,15 @@ const initGraph = () => {
 
 
 const addNewBlock=()=>{
-  newId = `block-${Doc.blocks.length+1}`
+  const random4DigitInteger = Math.floor(1000 + Math.random() * 9000);
+  newId = `block-${random4DigitInteger}`
   newTitle=`${newId}`
-  newBlock = `.[${newId}] ${newTitle}\n`
+  newBlock = `.[${newId}] ${newTitle}\n  `
   Doc = blockPage.action.doAddNewBlock(Doc,newBlock)
   //console.log(Doc)
   refreshNetworkEdges()
   UnsavedChanges = true
-  return {id:newId,label:newTitle,level:2,group:"first"}
-  
+  return {id:newId,label:newTitle,level:2,group:"first"} 
 }
 
 const deleteBlock = (blockId)=>{
@@ -223,7 +228,8 @@ const deleteEdge = (from ,to) => {
   Doc = blockPage.action.doDeleteKGEdge(Doc,from,to)
   //console.log(Doc)
   UnsavedChanges = true
-  refreshNetworkEdges()
+  //refreshNetworkEdges()
+  return
 }
 
 const updateBlock = (blockId,changes)=>{
@@ -267,15 +273,15 @@ const refreshNetworkEdges = ()=>{
 }
 
 const loadDocument = (text) => {
-  console.log(text)
+  // console.log(text)
   resetDoc();
   initVue();
   Doc = blockPage.encode(text.fileData);
-  console.log(Doc)
   if(!Doc.data['main']){
-    mainBlock =`.[main] Central Idea\n`
+    mainBlock =`.[main] Central Idea\nEnter your main idea here`
     Doc = blockPage.action.doAddNewBlock(Doc,mainBlock)
   }
+  console.log(Doc)
   DocPath = text.filePath
   initGraph();
 };

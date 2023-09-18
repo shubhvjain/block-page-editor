@@ -7,6 +7,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveFile: (filePath,fileContent) => {
     ipcRenderer.send('save-file',filePath,fileContent)
   },
+  setTitle: (title) => {
+    ipcRenderer.send('set-title',title)
+  },
   openFile: () => ipcRenderer.invoke('dialog:openFile')
 })
 

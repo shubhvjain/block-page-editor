@@ -35,9 +35,10 @@ const closeEditor = (editor)=>{
   // delete the editor 
   // delete file path 
   filePathHash = editorStore.get(editor)
-  editorStore.delete(filePathHash)
+  let fname = filePathHash[editor]
+  editorStore.delete(filePathHash[editor])
   editorStore.delete(editor)
-  console.log(`Closing editor: ${editor}`)
+  console.log(`Closing editor: ${editor} , with file : ${fname}`)
 }
 
 
@@ -88,10 +89,11 @@ if (require("electron-squirrel-startup")) {
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 950,
-    height: 700,
+    width: 1000,
+    height: 800,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
+      spellcheck:true
     },
     icon: "../icon/icon.png",
   });
@@ -100,6 +102,11 @@ const createWindow = () => {
     return { saved: true };
   });
 
+  ipcMain.on('set-title', (event, title) => {
+    const webContents = event.sender
+    const win = BrowserWindow.fromWebContents(webContents)
+    win.setTitle(title)
+  })
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "index.html"));
 

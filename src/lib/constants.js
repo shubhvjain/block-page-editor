@@ -3,6 +3,7 @@ let Themes  = {
     group: {
       root: {
         shape: "box",
+        margin: 10,
         color: {
           background: "#FFD369",
           border: '#FFD369',
@@ -15,10 +16,14 @@ let Themes  = {
             background: '#FFD369'
           }
         },
-        font : { size:20}
+        font : { size:18},
+        widthConstraint: {
+          maximum: 250,
+        },
       },
       first: {
         shape: "box",
+        margin: 10,
         color: {
           background: "#EEEEEE",
           border: '#EEEEEE',
@@ -31,7 +36,10 @@ let Themes  = {
             background: '#EEEEEE'
           }
         },
-        font : { size:20}
+        font : { size:18},
+        widthConstraint: {
+          maximum: 250,
+        },
       },
       rest: {
         shape: "box",
@@ -108,8 +116,11 @@ getGraphOptions = ()=>{
       }
     },
     layout: {
+      randomSeed: "seed",
       hierarchical: {
         direction: "LR",
+        nodeSpacing: 250,
+        levelSeparation: 250
       },
     },
   }
