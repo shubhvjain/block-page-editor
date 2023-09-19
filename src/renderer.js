@@ -51,3 +51,42 @@ async function saveDataToFile() {
   UnsavedChanges= false
   // Replace this with your actual save data code
 }
+
+async function loadAnotherDoc(fileName){
+  const fileData1 = await window.electronAPI.openAnotherDoc(fileName);
+}
+
+async function loadExternalResource(fileName){
+  let data = await window.electronAPI.loadDoc(DocPath,fileName);
+  return data
+}
+
+const loadResource = async (fileName)=>{
+  // check if this file is already loaded 
+  if(!Resources[fileName]){
+    try {
+      let data = await loadExternalResource(fileName)
+      Resources[fileName] = data
+    } catch (error) {
+      console.log(error)
+      // console.log("error in loading file")
+    }
+  }else{
+    if(!Resources[fileName]["success"]){
+      let data = await loadExternalResource(fileName)
+      Resources[fileName] = data
+    }
+  }
+  return Resources[fileName]
+}
+
+const showResourcePreview = async (fileName)=>{
+  let data = await loadResource(fileName)
+  if(data.success){
+    return `<iframe class="ifr" src="data:${data.fileType};base64,${data.base64Data}"></iframe>`
+  }else{
+    return `<div class="alert alert-danger" role="alert">
+    File "${data.fileName}" not found. Make sure that the resource is in the same folder.
+  </div>`
+  }
+}

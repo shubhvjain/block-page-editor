@@ -10,6 +10,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
   setTitle: (title) => {
     ipcRenderer.send('set-title',title)
   },
-  openFile: () => ipcRenderer.invoke('dialog:openFile')
+  openFile: () => ipcRenderer.invoke('dialog:openFile'),
+  openAnotherDoc : (fileName)=>{
+    ipcRenderer.invoke('open-doc',currentFile,fileName)
+  },
+  loadDoc : async (currentFile,fileName) =>{
+    let data = await ipcRenderer.invoke('load-doc',currentFile,fileName)
+    return data
+  }
 })
 

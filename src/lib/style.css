@@ -39,3 +39,8 @@ body{
 .vis-edit-mode{
   background-color: red;
 }
+
+.ifr{
+  width: 100%;
+  height: 50vh;
+}

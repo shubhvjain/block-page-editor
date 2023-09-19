@@ -4,6 +4,7 @@ const fs = require("fs").promises;
 const os = require("os");
 const Store = require("electron-store");
 const crypto = require("crypto");
+const mime = require('mime-types');
 
 const genFilePathHash = (filePath) => {
   const hash = crypto.createHash("sha256");
@@ -66,7 +67,6 @@ async function saveFile(filePath, content) {
 
 async function openFile(event) {
   let editorId = event.frameId+""
-  //console.log(editorId);
   const { canceled, filePaths } = await dialog.showOpenDialog();
   if (!canceled) {
     registerOpen = openEditor(editorId,filePaths[0])
@@ -78,6 +78,55 @@ async function openFile(event) {
     }
   } else {
     return { success: false, message: "No file was selected" };
+  }
+}
+
+function replaceFileName(originalPath, newFileName) {
+  // Use the `lastIndexOf` method to find the last slash (/ or \) in the path
+  const lastSlashIndex = originalPath.lastIndexOf('/');
+  const lastBackslashIndex = originalPath.lastIndexOf('\\');
+
+  // Determine the index of the last slash (whichever is found) to separate directory and file name
+  const lastIndex = Math.max(lastSlashIndex, lastBackslashIndex);
+
+  if (lastIndex >= 0) {
+    // Extract the directory and file name
+    const directory = originalPath.slice(0, lastIndex + 1); // Include the slash
+    // Combine the directory and new file name
+    const updatedPath = directory + newFileName;
+    return updatedPath;
+  } else {
+    // No slash found in the path, cannot determine directory, return the new file name as is
+    return newFileName;
+  }
+}
+
+async function openAnotherDoc(event,currentFile,fileName){
+  const updatedPath = replaceFileName(currentFile, fileName);
+}
+
+async function loadAnotherDoc(event,currentFile,fileName){
+  try {
+    filePath = replaceFileName(currentFile,fileName)
+    const data = await fs.readFile(filePath);
+    const base64Data = Buffer.from(data).toString('base64');
+    console.log(`Attempting to load file : ${filePath} `)
+    return {
+      fileName: path.basename(filePath),
+      fileType: mime.lookup(filePath) || 'application/octet-stream',
+      filePath: filePath,
+      success: true,
+      base64Data: base64Data,
+    };
+  } catch (error) {
+    console.log(error)
+    return {
+      fileName: path.basename(filePath),
+      fileType: mime.lookup(filePath) || 'application/octet-stream',
+      filePath: filePath,
+      success: false,
+      error: error.message,
+    };
   }
 }
 
@@ -113,7 +162,6 @@ const createWindow = () => {
   mainWindow.on("closed", (e) => {
     editorId = mainWindow.id
     closeEditor(editorId)
-    // console.log(e);
   });
   // Create a menu item to open a new window
     const { Menu, MenuItem } = require("electron");
@@ -158,7 +206,8 @@ const createWindow = () => {
 app.whenReady().then(() => {
   createWindow();
   ipcMain.handle("dialog:openFile", openFile);
-
+  ipcMain.handle("open-doc", openAnotherDoc);
+  ipcMain.handle("load-doc", loadAnotherDoc);
   globalShortcut.register("CommandOrControl+N", () => {
     createWindow();
   });

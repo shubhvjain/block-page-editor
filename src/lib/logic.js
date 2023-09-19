@@ -3,6 +3,7 @@ Graph = {};
 Network = {}
 VueApp = {}
 DocPath=""
+Resources = {}
 UnsavedChanges = false;
 
 const resetDoc = () => {
@@ -10,6 +11,7 @@ const resetDoc = () => {
   Graph = {};
   Network = {};
   VueApp = {}
+  Resources = {}
   DocPath=""
 };
 
@@ -19,9 +21,12 @@ const initVue = () => {
     data: {
         isEditing: false,
         blockSelected:false,
-        blockData : {id:"",title:"",text:""},
+        blockData : {id:"",title:"",text:"",value:{type:''}},
         status:0,
-        fontSize:18
+        fontSize:18,
+        newBlockId:"",
+        addPreview : false,
+        docPreview:""
     },
     methods: {
         increaseFontSize() {
@@ -32,37 +37,51 @@ const initVue = () => {
                 this.fontSize -= 2; // Decrease font size by 2 pixels
             }
         },
+        saveToFile(){
+          saveDataToFile().then(data=>{}).catch(err=>{console.log(err)})
+        },
+        addNamedBlock(){
+          addNewBlock1(this.newBlockId)
+          this.newBlockId = ""
+        },
         closeIfOpen(blockId){
           // use this if you are deleteting a node from the graph and if its also open in the editor. no need to save things 
           if(this.status !=0){
             if(this.blockData.id==blockId){
               this.blockSelected = false
               this.status=0  
-              this.blockData = {}
+              this.blockData = {id:"",title:"",text:"",value:{type:''}}
             }
           }
         },
         closeEditor(){
           if(this.status != 0){
-            this.savePreviewBeforeLeaving()
+            this.saveBeforeLeaving()
             this.blockSelected = false
             this.status=0
           }
         },
-        savePreviewBeforeLeaving(){
+        saveBeforeLeaving(){
           if(this.status==0){
             // the editor what just initialized 
             this.status = 1
           }else{
             this.saveChanges()
           }
-          this.blockData = {}
+          this.blockData = {id:"",title:"",text:"",value:{type:''}}
         },
-        loadPreview(blockId,edit=false) {
-            this.savePreviewBeforeLeaving()
+        async loadPreview(blockId,edit=false) {
+            this.saveBeforeLeaving()
             let bData = { ... Doc.data[blockId] }
-            this.blockData = {id:blockId, preview:bData.text, title:bData.title,text:bData.source.first } ;
+            this.blockData = {id:blockId, preview:bData.text, title:bData.title,text:bData.source.first, value:bData.value } ;
             //console.log(this.blockData)
+            if(bData.value['type']){
+              this.addPreview = true
+              if(bData.value['type']=="doc"){
+                let prev = await showResourcePreview(bData.value['src'])
+                this.docPreview = prev
+              }
+            }
             this.blockSelected = true
             if(edit){
               this.editPreview()
@@ -87,6 +106,7 @@ const initVue = () => {
             blockContent = updateBlock(this.blockData.id,{title:this.blockData.title,text:this.blockData.text})
           } 
           this.blockData.preview = blockContent.text
+          this.blockData.value = blockContent.value
           this.isEditing = false;
           renderMaths()
         },
@@ -96,6 +116,11 @@ const initVue = () => {
             return content.replace(/\n/g, '<br>');
           }
           else{return ""}
+        },
+        openNewEditor(){
+          if(this.blockData.value.type=='link'){
+            loadAnotherDoc(this.blockData.value.src)
+          }
         }
     }
   });
@@ -208,6 +233,20 @@ const addNewBlock=()=>{
   return {id:newId,label:newTitle,level:2,group:"first"} 
 }
 
+const addNewBlock1=(blockId)=>{
+  if(!Doc.data[blockId]){
+    newId = `${blockId}`
+    newTitle=`${newId}`
+    newBlock = `.[${newId}] ${newTitle}\n  `
+    Doc = blockPage.action.doAddNewBlock(Doc,newBlock)
+    refreshNetworkEdges()
+    UnsavedChanges = true
+    // return {id:newId,label:newTitle,level:2,group:"first"} 
+  }else{
+    console.log("This block already exists")
+  }
+}
+
 const deleteBlock = (blockId)=>{
   Doc = blockPage.action.doDeleteBlock(Doc,blockId)
   //console.log(Doc)
@@ -244,14 +283,14 @@ const refreshNetworkEdges = ()=>{
   console.log(Doc)
   let bfs = null
   try {
-    bfs = blockPage.graph.BreadthFirstSearch(Doc.graphs.knowledge,"main")    
+    bfs = blockPage.graph.BreadthFirstSearch(Doc.graphs.knowledge,"main") 
+    //console.log(bfs)   
   } catch (error) {
     bfs = {vertices:{}}  
   }
-  //console.log(bfs)
+  console.log(bfs)
   Doc.blocks.map(block=>{
     theLevel = 2 // default level is 2
-    if (block=="main") theLevel = 1
     if (bfs.vertices[block]){
       theLevel  = bfs.vertices[block]["weight"] + 1
     }

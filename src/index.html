@@ -20,6 +20,29 @@
               <div v-show="!isEditing" >
                 <h2 class="border-bottom">{{ blockData.title }} <button class="btn btn-link" id="edit-button" @click="editPreview">Edit</button>  </h2>
                 <div v-html="formatHtml(blockData.preview)"></div>
+                <div v-show="addPreview">
+                  <br>
+                  <div v-show="blockData['value']['type']=='link'">
+                   
+                        <div class="list-group">
+                          <a @click="openNewEditor" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+                            <!-- <img src="https://github.com/twbs.png" alt="twbs" width="32" height="32" class="rounded-circle flex-shrink-0"> -->
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-box-arrow-up-right  flex-shrink-0" viewBox="0 0 16 16">
+                              <path fill-rule="evenodd" d="M8.636 3.5a.5.5 0 0 0-.5-.5H1.5A1.5 1.5 0 0 0 0 4.5v10A1.5 1.5 0 0 0 1.5 16h10a1.5 1.5 0 0 0 1.5-1.5V7.864a.5.5 0 0 0-1 0V14.5a.5.5 0 0 1-.5.5h-10a.5.5 0 0 1-.5-.5v-10a.5.5 0 0 1 .5-.5h6.636a.5.5 0 0 0 .5-.5z"/>
+                              <path fill-rule="evenodd" d="M16 .5a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0 0 1h3.793L6.146 9.146a.5.5 0 1 0 .708.708L15 1.707V5.5a.5.5 0 0 0 1 0v-5z"/>
+                            </svg>
+                            <div class="d-flex gap-2 w-100 justify-content-between">
+                              <div>
+                                <h6 class="mb-0">{{ blockData['value']['title'] || blockData['value']['src'] }}</h6>
+                              </div>
+                            </div>
+                          </a>
+                        </div>
+                  </div>
+                  <div v-show="blockData['value']['type']=='doc'">
+                    <div style="height: 50vh;width:100%" v-html="docPreview"></div>
+                  </div>
+                </div>
               </div>
               
               <div id="edit-form" v-show="isEditing">
@@ -34,17 +57,25 @@
               </div>
           </div>
           <div v-show="!blockSelected">
-            <div class="row" >
-              <div class="col-md-6 mx-auto mt-3 pt-4">
-                  <p class="text-center">Select a block to preview/edit</p>
-                  <div class="text-center">
-                    <div class="btn-group" role="group" aria-label="Basic outlined example">
-                      <button type="button" @click="increaseFontSize" id="increaseFontSize" class="btn btn-sm btn-outline-primary">+ A</button>
-                      <button type="button" @click="decreaseFontSize" id="decreaseFontSize" class="btn btn-sm btn-outline-primary">- A</button>
-                    </div>
-                  </div>
+            <div class="d-flex align-items-end flex-column mb-3" style="height: 100vh;">
+              <div class="p-2 m-2">
+                <br><br>
+                <p class="text-center text-white-50 ">Select a block to preview/edit</p>
               </div>
-          </div>
+              <div class="mt-auto p-2 border-top">
+                <div class="text-center">
+                  <div class="btn-group" role="group" aria-label="Basic outlined example">
+                    <button type="button" @click="increaseFontSize" id="increaseFontSize" class="btn btn-sm btn-outline-primary">+ A</button>
+                    <button type="button" @click="decreaseFontSize" id="decreaseFontSize" class="btn btn-sm btn-outline-primary">- A</button>
+                    <button type="button" @click="saveToFile"  class="btn btn-sm btn-outline-success ml-4">Save</button>
+                  </div>
+                </div>
+                <div class="input-group mt-1">
+                  <input type="text" class="form-control form-control-sm" placeholder="block name" v-model="newBlockId">
+                  <button class="btn btn-outline-secondary btn-sm" type="button" id="button-addon2" @click="addNamedBlock" >+ Block</button>
+                </div>
+              </div>
+            </div>
           </div>
           
           </div>
