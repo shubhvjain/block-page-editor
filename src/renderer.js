@@ -53,7 +53,7 @@ async function saveDataToFile() {
 }
 
 async function loadAnotherDoc(fileName){
-  const fileData1 = await window.electronAPI.openAnotherDoc(fileName);
+  const fileData1 = await window.electronAPI.openAnotherDoc(DocPath,fileName);
 }
 
 async function loadExternalResource(fileName){
@@ -90,3 +90,27 @@ const showResourcePreview = async (fileName)=>{
   </div>`
   }
 }
+
+
+
+(async()=>{
+// on start check if new file needs to be opened automatically 
+let processArgs = window.electronAPI.getArgs()
+console.log("-=")
+console.log(processArgs)
+if(processArgs.openFileOnLoad){
+  
+  const fileData1 = await window.electronAPI.openSelectedFile(processArgs.openFileOnLoad);
+  console.log(fileData1)
+  if (fileData1.success) {
+    showDiv("editor");
+    await window.electronAPI.setTitle(fileData1.filePath)
+    loadDocument(fileData1);
+  } else {
+    console.log(fileData1.message);
+  }
+}else{
+  console.log('The openFile parameter does not exist.');
+  showDiv("startup")
+}
+})();

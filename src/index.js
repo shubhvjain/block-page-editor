@@ -31,6 +31,11 @@ const openEditor = (editorId,filePath)=>{
   // will check if already open 
 }
 
+const openEditorCheckByFilePath = (filePath)=>{
+  fileKeyName =  filePath //genFilePathHash(filePath)
+  return editorStore.has(fileKeyName)
+}
+
 const closeEditor = (editor)=>{
   // get editor  value which is the filepath
   // delete the editor 
@@ -66,6 +71,7 @@ async function saveFile(filePath, content) {
 }
 
 async function openFile(event) {
+  console.log(event)
   let editorId = event.frameId+""
   const { canceled, filePaths } = await dialog.showOpenDialog();
   if (!canceled) {
@@ -73,6 +79,27 @@ async function openFile(event) {
     if(registerOpen.success){
       fileData = await readFileContent(filePaths[0]);
       return { success: true, fileData, filePath: filePaths[0] };
+    }else{
+      return registerOpen
+    }
+  } else {
+    return { success: false, message: "No file was selected" };
+  }
+}
+
+async function openGivenFile(event,filePath) {
+  let editorId = event.frameId+""
+  if (filePath) {
+    //console.log(editorId,filePath)
+    registerOpen = openEditor(editorId,filePath)
+    if(registerOpen.success){
+      try {
+        fileData = await readFileContent(filePath);
+        return { success: true, fileData, filePath: filePath };  
+      } catch (error) {
+        console.log("Error reading given file path")
+        return { success: false, fileData:"", filePath: "",message:"File not found" }; 
+      }
     }else{
       return registerOpen
     }
@@ -103,6 +130,14 @@ function replaceFileName(originalPath, newFileName) {
 
 async function openAnotherDoc(event,currentFile,fileName){
   const updatedPath = replaceFileName(currentFile, fileName);
+  registerOpen = openEditorCheckByFilePath(updatedPath)
+  if(!registerOpen){
+    console.log(`opening a new window to open ${updatedPath}`)
+    createWindow({"openFileOnLoad":updatedPath})
+  }else{
+    console.log("Editor already open!")
+    return registerOpen
+  }
 }
 
 async function loadAnotherDoc(event,currentFile,fileName){
@@ -135,14 +170,19 @@ if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
-const createWindow = () => {
+const createWindow = (options={openFileOnLoad:""}) => {
   // Create the browser window.
+  addArgs = []
+  if(options.openFileOnLoad){
+    addArgs.push(`--openFileOnLoad=${options.openFileOnLoad}`)
+  }
   const mainWindow = new BrowserWindow({
     width: 1000,
     height: 800,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
-      spellcheck:true
+      spellcheck:true,
+      additionalArguments: addArgs
     },
     icon: "../icon/icon.png",
   });
@@ -160,7 +200,10 @@ const createWindow = () => {
   mainWindow.loadFile(path.join(__dirname, "index.html"));
 
   mainWindow.on("closed", (e) => {
+    //console.log(e)
+    //console.log(mainWindow)
     editorId = mainWindow.id
+    //console.log(editorId)
     closeEditor(editorId)
   });
   // Create a menu item to open a new window
@@ -195,7 +238,7 @@ const createWindow = () => {
     ]);
     Menu.setApplicationMenu(menu);
   // Open the DevTools.
-  //  mainWindow.webContents.openDevTools();
+   mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
@@ -206,7 +249,8 @@ const createWindow = () => {
 app.whenReady().then(() => {
   createWindow();
   ipcMain.handle("dialog:openFile", openFile);
-  ipcMain.handle("open-doc", openAnotherDoc);
+  ipcMain.handle("open-given-file", openGivenFile);
+  ipcMain.handle("open-doc-window", openAnotherDoc);
   ipcMain.handle("load-doc", loadAnotherDoc);
   globalShortcut.register("CommandOrControl+N", () => {
     createWindow();
@@ -226,8 +270,8 @@ app.on("window-all-closed", () => {
 app.on("activate", () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
+  editorStore.clear();
   if (BrowserWindow.getAllWindows().length === 0) {
-    editorStore.clear();
     createWindow();
   }
 });
@@ -236,6 +280,3 @@ app.on("will-quit", () => {
   // Unregister the shortcut before quitting the app
   globalShortcut.unregisterAll();
 });
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
