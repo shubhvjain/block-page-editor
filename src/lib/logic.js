@@ -225,7 +225,7 @@ const addNewBlock=()=>{
   const random4DigitInteger = Math.floor(1000 + Math.random() * 9000);
   newId = `block-${random4DigitInteger}`
   newTitle=`${newId}`
-  newBlock = `.[${newId}] ${newTitle}\n  `
+  newBlock = `.[${newId}] ${newTitle}\n`
   Doc = blockPage.action.doAddNewBlock(Doc,newBlock)
   //console.log(Doc)
   refreshNetworkEdges()
@@ -237,7 +237,7 @@ const addNewBlock1=(blockId)=>{
   if(!Doc.data[blockId]){
     newId = `${blockId}`
     newTitle=`${newId}`
-    newBlock = `.[${newId}] ${newTitle}\n  `
+    newBlock = `.[${newId}] ${newTitle}\n`
     Doc = blockPage.action.doAddNewBlock(Doc,newBlock)
     refreshNetworkEdges()
     UnsavedChanges = true
@@ -267,7 +267,15 @@ const deleteEdge = (from ,to) => {
   Doc = blockPage.action.doDeleteKGEdge(Doc,from,to)
   //console.log(Doc)
   UnsavedChanges = true
-  //refreshNetworkEdges()
+  // refreshNetworkEdges()
+  var items = Graph.edges.get({
+    fields: ['id'],
+    filter: function (item) {
+      return item.from == from && item.to == to;
+    }  
+  });
+  
+  Graph.edges.remove(items.id)
   return
 }
 

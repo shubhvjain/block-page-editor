@@ -16,9 +16,9 @@ let Themes  = {
             background: '#FFD369'
           }
         },
-        font : { size:18},
+        font : { size:20},
         widthConstraint: {
-          maximum: 250,
+          maximum: 300,
         },
       },
       first: {
@@ -36,9 +36,9 @@ let Themes  = {
             background: '#EEEEEE'
           }
         },
-        font : { size:18},
+        font : { size:20},
         widthConstraint: {
-          maximum: 250,
+          maximum: 300,
         },
       },
       rest: {
@@ -119,8 +119,10 @@ getGraphOptions = ()=>{
       randomSeed: "seed",
       hierarchical: {
         direction: "LR",
-        nodeSpacing: 250,
-        levelSeparation: 250
+        nodeSpacing: 100,
+        levelSeparation: 200,
+        sortMethod:"hubsize",
+
       },
     },
   }

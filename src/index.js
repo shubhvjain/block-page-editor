@@ -71,7 +71,7 @@ async function saveFile(filePath, content) {
 }
 
 async function openFile(event) {
-  console.log(event)
+  // console.log(event)
   let editorId = event.frameId+""
   const { canceled, filePaths } = await dialog.showOpenDialog();
   if (!canceled) {
@@ -238,7 +238,7 @@ const createWindow = (options={openFileOnLoad:""}) => {
     ]);
     Menu.setApplicationMenu(menu);
   // Open the DevTools.
-   mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 };
 
 // This method will be called when Electron has finished
