@@ -3,7 +3,7 @@ let Themes  = {
     group: {
       root: {
         shape: "box",
-        margin: 10,
+        margin: 15,
         color: {
           background: "#FFD369",
           border: '#FFD369',
@@ -16,10 +16,11 @@ let Themes  = {
             background: '#FFD369'
           }
         },
-        font : { size:20},
+        font : { size:24},
         widthConstraint: {
           maximum: 300,
         },
+        heightConstraint: { valign: "middle" }
       },
       first: {
         shape: "box",
@@ -40,6 +41,7 @@ let Themes  = {
         widthConstraint: {
           maximum: 300,
         },
+        heightConstraint: { valign: "middle", minimum: 50 }
       },
       rest: {
         shape: "box",
@@ -57,13 +59,13 @@ let Themes  = {
       shadow: false,
       color: {
         color: '#EEEEEE',
-        highlight: '#EEEEEE',
-        hover: '#EEEEEE',
+        highlight: '#198754',
+        hover: '#198754',
       },
       font: {
         color: "#EEEEEE",
         strokeWidth: 0,
-        size: 9,
+        size: 10,
 
       }
     }
@@ -118,11 +120,15 @@ getGraphOptions = ()=>{
     layout: {
       randomSeed: "seed",
       hierarchical: {
-        direction: "LR",
-        nodeSpacing: 100,
-        levelSeparation: 200,
+        direction: "UD",
+        nodeSpacing: 150,
+        levelSeparation: 300,
         sortMethod:"hubsize",
-
+      },
+    },
+    physics: {
+      hierarchicalRepulsion: {
+        avoidOverlap: 1,
       },
     },
   }

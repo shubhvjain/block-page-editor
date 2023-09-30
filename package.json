@@ -1,8 +1,8 @@
 {
-  "name": "block-page-editor-4",
-  "productName": "block-page-editor-4",
+  "name": "block-page-editor",
+  "productName": "block-page-editor",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "Block page editor. This has a lot of additional functionalities",
   "main": "src/index.js",
   "scripts": {
     "start": "electron-forge start",
@@ -15,8 +15,10 @@
   "author": "svj",
   "license": "MIT",
   "dependencies": {
+    "block-page": "^1.0.8",
     "electron-squirrel-startup": "^1.0.0",
     "electron-store": "^8.1.0",
+    "mathjax-node": "^2.1.1",
     "mime-types": "^2.1.35"
   },
   "devDependencies": {
